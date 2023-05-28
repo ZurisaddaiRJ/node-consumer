@@ -4,9 +4,11 @@ const { Kafka } = require('kafkajs')
 
 const kafka = new Kafka({
   clientId: 'my-app',
-  brokers: ['book-kafka-0.book-kafka-headless.zurisaddairj.svc.cluster.local:9092',
-	//    'your-kafka-0.my-kafka-headless.kafka-adsoftsito.svc.cluster.local:9092'
-	  ]
+  brokers: [
+    //'localhost:9092',
+    'book-kafka-0.book-kafka-headless.zurisaddairj.svc.cluster.local:9092',
+    //    'your-kafka-0.my-kafka-headless.kafka-adsoftsito.svc.cluster.local:9092'
+  ]
 });
 
 const producer = kafka.producer()
@@ -23,26 +25,26 @@ app.get('/', (req, res, next) => {
 
 const run = async (username) => {
 
-    await producer.connect()
-//    await producer.send()
-    await producer.send({
-      topic: 'test',
-      messages: [ 
-	{ 
-	  'value': `{"name": "${username}" }` 
-  	} 
-      ],
-    })
-   await producer.disconnect()
+  await producer.connect()
+  //    await producer.send()
+  await producer.send({
+    topic: 'test',
+    messages: [
+      {
+        'value': `{"name": "${username}" }`
+      }
+    ],
+  })
+  await producer.disconnect()
 }
 
 app.get('/like', (req, res, next) => {
   const username = req.query.name;
-  res.send({ 'name' : username } );
+  res.send({ 'name': username });
   run(username).catch(e => console.error(`[example/producer] ${e.message}`, e))
 
 });
 
-app.listen(port,  () => 
-	console.log('listening on port ' + port
-));
+app.listen(port, () =>
+  console.log('listening on port ' + port
+  ));
