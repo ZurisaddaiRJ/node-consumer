@@ -45,6 +45,48 @@ app.get('/like', (req, res, next) => {
 
 });
 
+//node - topic reaction 
+const ruun = async (uId, oId, rId) => {
+  await producer.connect()
+  await producer.send({
+    topic: 'reactions',
+    messages: [{
+      'value': `{ "userId": "${uId}",  "objectId": "${oId}", "reactionId": "${rId}"}`
+    }],
+  })
+  await producer.disconnect();
+}
+
+app.get('/reaction', (req, res, next) => {
+  const uId = req.query.userId;
+  const oId = req.query.objectId;
+  const rId = req.query.reactionId;
+  res.send({ 'userId:': uId, 'objectId': oId, 'reactionId': rId });
+  ruun(uId, oId, rId).catch(e => console.error(`[example/producer] ${e.message}`, e))
+});
+
+const r = async (uId, oId, comment) => {
+  await producer.connect()
+  await producer.send({
+    topic: 'comments',
+    messages: [
+      {
+        'value': `{ "userId": "${uId}",  "objectId": "${oId}", "comment": "${comment}"}`
+      }
+    ],
+  })
+  await producer.disconnect()
+}
+
+app.get('/comments', (req, res, next) => {
+  const uId = req.query.userId;
+  const oId = req.query.objectId;
+  const comment = req.query.comment;
+  res.send({ 'userId:': uId, 'objectId': oId, 'comment': comment });
+  r(uId, oId, comment).catch(e => console.error(`[example/producer] ${e.message}`, e))
+
+});
+
 app.listen(port, () =>
   console.log('listening on port ' + port
   ));
